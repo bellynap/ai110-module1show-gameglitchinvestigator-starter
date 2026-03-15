@@ -29,7 +29,7 @@ It wrote the code, ran away, and now the game is unplayable.
   The game is a number-guessing challenge where players try to guess a secret number within a range based on difficulty (Easy: 1-20, Normal: 1-100, Hard: 1-50). The app provides hints ("Go HIGHER!" or "Go LOWER!") to guide guesses, tracks attempts, and awards scores based on performance. It's designed to be a simple, interactive game built with Streamlit.
 
 - [x] **Detail which bugs you found.**  
-  - Secret number changed on every submit due to missing session state initialization.  
+   
   - "New Game" button caused duplicate element keys and didn't reset input fields properly.  
   - Hints were backwards: "Too High" said "Go HIGHER!" instead of "Go LOWER!", and vice versa.  
   - Secret didn't reset when difficulty changed, keeping old-range values.  
@@ -54,4 +54,8 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+- Challenge 1 Advanced Edge-Case Testing [alt text](image-1.png)
+- Challenge 2: Feature Expansion via Agent Mode (agent changes commented in code)
+- Challenge 3: Professional Documentation and Linting
+- Challenge 4: Enhanced Game UI
+

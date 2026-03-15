@@ -1,7 +1,18 @@
 import random
 
+
 def get_range_for_difficulty(difficulty: str):
-    """Return (low, high) inclusive range for a given difficulty."""
+    """Retrieve the inclusive range for the secret number.
+
+    Args:
+        difficulty (str): The difficulty level.
+            Supported values are 'Easy', 'Normal', 'Hard'.
+            Defaults to 'Normal' if an unsupported value is provided.
+
+    Returns:
+        tuple[int, int]: A tuple containing the low and high bounds
+            (inclusive) for the secret number.
+    """
     if difficulty == "Easy":
         return 1, 20
     if difficulty == "Normal":
@@ -12,9 +23,19 @@ def get_range_for_difficulty(difficulty: str):
 
 
 def parse_guess(raw: str):
-    """Parse user input into an int guess.
+    """Parses the raw user input string into a valid integer guess.
 
-    Returns: (ok: bool, guess_int: int | None, error_message: str | None)
+    This function validates the input to ensure it represents a positive whole number
+    within reasonable bounds to prevent parsing issues or overflow.
+
+    Args:
+        raw (str): The raw input string from the user.
+
+    Returns:
+        tuple[bool, int | None, str | None]: A tuple containing:
+            - ok (bool): True if parsing was successful, False otherwise.
+            - guess_int (int | None): The parsed integer guess if successful, None otherwise.
+            - error_message (str | None): An error message if parsing failed, None otherwise.
     """
     if raw is None:
         return False, None, "Enter a guess."
@@ -43,10 +64,16 @@ def parse_guess(raw: str):
 
 
 def check_guess(guess, secret):
-    """
-    Compare guess to secret and return (outcome, message).
+    """Compares the user's guess against the secret number and determines the outcome.
 
-    outcome examples: "Win", "Too High", "Too Low"
+    Args:
+        guess (int): The user's guessed number.
+        secret (int | str): The secret number to guess. Can be int or str, but will be converted to int.
+
+    Returns:
+        tuple[str, str]: A tuple containing:
+            - outcome (str): The result of the guess. Possible values: 'Win', 'Too High', 'Too Low'.
+            - message (str): A user-friendly message describing the outcome.
     """
     # Fix #2: Ensure secret is always an int to prevent string comparison bugs on even attempts
     # The original code sometimes passes secret as str, causing lexicographical comparisons instead of numerical
@@ -65,7 +92,16 @@ def check_guess(guess, secret):
 
 # FIX: Added update_score in logic_utils.py (refactored from app.py) so all game rules live together.
 def update_score(current_score: int, outcome: str, attempt_number: int):
-    """Update score based on outcome and attempt number."""
+    """Updates the player's score based on the guess outcome and attempt number.
+
+    Args:
+        current_score (int): The player's current score before the update.
+        outcome (str): The outcome of the guess. Possible values: 'Win', 'Too High', 'Too Low'.
+        attempt_number (int): The number of attempts made so far (0-based).
+
+    Returns:
+        int: The updated score after applying the scoring rules.
+    """
     if outcome == "Win":
         points = 100 - 10 * (attempt_number + 1)
         if points < 10:
@@ -84,7 +120,21 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
 
 def reset_game(low: int, high: int) -> dict:
-    """Return initial game state."""
+    """Resets the game state to its initial values for a new game.
+
+    Args:
+        low (int): The lower bound (inclusive) for the secret number range.
+        high (int): The upper bound (inclusive) for the secret number range.
+
+    Returns:
+        dict: A dictionary representing the initial game state with the following keys:
+            - 'secret' (int): The randomly generated secret number.
+            - 'attempts' (int): Number of attempts made (initially 0).
+            - 'score' (int): Current score (initially 0).
+            - 'status' (str): Game status (initially 'playing').
+            - 'history' (list): List of previous guesses (initially empty).
+            - 'reset_counter' (int): Counter for game resets (initially 0).
+    """
     return {
         "secret": random.randint(low, high),
         "attempts": 0,
@@ -97,7 +147,15 @@ def reset_game(low: int, high: int) -> dict:
 
 # FIX: Added get_attempt_limit function refactored from app.py using Copilot Agent mode for better separation of logic and UI.
 def get_attempt_limit(difficulty: str) -> int:
-    """Return the attempt limit for a given difficulty."""
+    """Retrieves the maximum number of attempts allowed for the specified difficulty level.
+
+    Args:
+        difficulty (str): The difficulty level. Supported values are 'Easy', 'Normal', 'Hard'.
+
+    Returns:
+        int: The maximum number of attempts allowed for the given difficulty.
+             Defaults to 8 if an unsupported difficulty is provided.
+    """
     limits = {
         "Easy": 6,
         "Normal": 8,

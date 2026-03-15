@@ -23,7 +23,7 @@ def get_range_for_difficulty(difficulty: str):
 
 
 def parse_guess(raw: str):
-    """Parses the raw user input string into a valid integer guess.
+    """Parse the raw user input string into a valid integer guess.
 
     This function validates the input to ensure it represents a positive whole number
     within reasonable bounds to prevent parsing issues or overflow.
@@ -34,8 +34,8 @@ def parse_guess(raw: str):
     Returns:
         tuple[bool, int | None, str | None]: A tuple containing:
             - ok (bool): True if parsing was successful, False otherwise.
-            - guess_int (int | None): The parsed integer guess if successful, None otherwise.
-            - error_message (str | None): An error message if parsing failed, None otherwise.
+            - guess_int (int | None): The parsed integer guess, or None on failure.
+            - error_message (str | None): An error message if parsing failed.
     """
     if raw is None:
         return False, None, "Enter a guess."
@@ -64,39 +64,43 @@ def parse_guess(raw: str):
 
 
 def check_guess(guess, secret):
-    """Compares the user's guess against the secret number and determines the outcome.
+    """Compare the user's guess against the secret number and determine the outcome.
 
     Args:
         guess (int): The user's guessed number.
-        secret (int | str): The secret number to guess. Can be int or str, but will be converted to int.
+        secret (int | str): The secret number to guess.
+            Can be int or str, but will be converted to int.
 
     Returns:
         tuple[str, str]: A tuple containing:
-            - outcome (str): The result of the guess. Possible values: 'Win', 'Too High', 'Too Low'.
+            - outcome (str): The result of the guess. Possible values: 'Win',
+              'Too High', 'Too Low'.
             - message (str): A user-friendly message describing the outcome.
     """
-    # Fix #2: Ensure secret is always an int to prevent string comparison bugs on even attempts
-    # The original code sometimes passes secret as str, causing lexicographical comparisons instead of numerical
+    # Ensure secret is always an int so we compare numerically rather than
+    # lexicographically (e.g., '10' > '2').
     secret = int(secret)
 
     if guess == secret:
         return "Win", "🎉 Correct!"
 
-    # Fix #7: Correct the hint messages to guide the player properly
-    # Previously, "Too High" incorrectly said "Go HIGHER!" (should be "Go LOWER!"), and "Too Low" said "Go LOWER!" (should be "Go HIGHER!")
+    # Correct the hint messages to guide the player properly.
+    # Previously, "Too High" said "Go HIGHER!" (should be "Go LOWER!") and
+    # "Too Low" said "Go LOWER!" (should be "Go HIGHER!").
     if guess > secret:
         return "Too High", "📉 Go LOWER!"
     else:
         return "Too Low", "📈 Go HIGHER!"
 
 
-# FIX: Added update_score in logic_utils.py (refactored from app.py) so all game rules live together.
+# Added update_score in logic_utils.py (refactored from app.py) so game rules live together.
 def update_score(current_score: int, outcome: str, attempt_number: int):
-    """Updates the player's score based on the guess outcome and attempt number.
+    """Update the player's score based on the guess outcome and attempt number.
 
     Args:
         current_score (int): The player's current score before the update.
-        outcome (str): The outcome of the guess. Possible values: 'Win', 'Too High', 'Too Low'.
+        outcome (str): The outcome of the guess.
+            Possible values: 'Win', 'Too High', 'Too Low'.
         attempt_number (int): The number of attempts made so far (0-based).
 
     Returns:
@@ -127,7 +131,8 @@ def reset_game(low: int, high: int) -> dict:
         high (int): The upper bound (inclusive) for the secret number range.
 
     Returns:
-        dict: A dictionary representing the initial game state with the following keys:
+        dict: A dictionary representing the initial game state with the
+            following keys:
             - 'secret' (int): The randomly generated secret number.
             - 'attempts' (int): Number of attempts made (initially 0).
             - 'score' (int): Current score (initially 0).
@@ -145,16 +150,18 @@ def reset_game(low: int, high: int) -> dict:
     }
 
 
-# FIX: Added get_attempt_limit function refactored from app.py using Copilot Agent mode for better separation of logic and UI.
+# Note: get_attempt_limit was factored out from app.py to keep game logic
+# separate from UI concerns.
 def get_attempt_limit(difficulty: str) -> int:
-    """Retrieves the maximum number of attempts allowed for the specified difficulty level.
+    """Retrieve the maximum number of attempts allowed for a given difficulty.
 
     Args:
-        difficulty (str): The difficulty level. Supported values are 'Easy', 'Normal', 'Hard'.
+        difficulty (str): The difficulty level.
+            Supported values are 'Easy', 'Normal', 'Hard'.
 
     Returns:
         int: The maximum number of attempts allowed for the given difficulty.
-             Defaults to 8 if an unsupported difficulty is provided.
+            Defaults to 8 if an unsupported difficulty is provided.
     """
     limits = {
         "Easy": 6,

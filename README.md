@@ -25,13 +25,32 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [x] **Describe the game's purpose.**  
+  The game is a number-guessing challenge where players try to guess a secret number within a range based on difficulty (Easy: 1-20, Normal: 1-100, Hard: 1-50). The app provides hints ("Go HIGHER!" or "Go LOWER!") to guide guesses, tracks attempts, and awards scores based on performance. It's designed to be a simple, interactive game built with Streamlit.
+
+- [x] **Detail which bugs you found.**  
+  - Secret number changed on every submit due to missing session state initialization.  
+  - "New Game" button caused duplicate element keys and didn't reset input fields properly.  
+  - Hints were backwards: "Too High" said "Go HIGHER!" instead of "Go LOWER!", and vice versa.  
+  - Secret didn't reset when difficulty changed, keeping old-range values.  
+  - No validation for guesses outside the difficulty range, allowing invalid inputs.  
+  - Attempts counter had an off-by-one error, showing incorrect "attempts left."  
+  - On even attempts, secret was converted to string, causing lexicographical comparisons and wrong hints.  
+  - Score logic was inconsistent and didn't reset properly on new games.
+
+- [x] **Explain what fixes you applied.**  
+  - Added proper session state initialization for secret, attempts, score, etc., to persist across reruns.  
+  - Used dynamic keys for text input to avoid duplicates and enable clearing on "New Game."  
+  - Swapped hint messages in `check_guess` and ensured numerical comparisons by converting secret to int.  
+  - Added difficulty change detection to regenerate secret in the new range.  
+  - Implemented range validation in the submit logic to reject out-of-bounds guesses.  
+  - Fixed attempts counter by starting at 0 instead of 1.  
+  - Refactored logic into `logic_utils.py` for better organization and added unit tests.  
+  - Updated score reset and ensured all state clears on new games.
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+- [ ] ![alt text](image.png)
 
 ## 🚀 Stretch Features
 

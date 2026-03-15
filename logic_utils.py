@@ -25,8 +25,8 @@ def get_range_for_difficulty(difficulty: str):
 def parse_guess(raw: str):
     """Parse the raw user input string into a valid integer guess.
 
-    This function validates the input to ensure it represents a positive whole number
-    within reasonable bounds to prevent parsing issues or overflow.
+    This function validates the input to ensure it represents a positive whole
+    number within reasonable bounds to prevent parsing issues or overflow.
 
     Args:
         raw (str): The raw input string from the user.
@@ -48,8 +48,8 @@ def parse_guess(raw: str):
         return False, None, "Enter a whole number."
 
     try:
-        # Very large integers can be unreasonably slow to parse; reject them.
-        # This also avoids overflow-like behaviors in some environments.
+        # Very large integers can be unreasonably slow to parse.
+        # Reject them to avoid overflow-like behaviors in some environments.
         if len(raw) > 9:
             return False, None, "Enter a reasonable number."
 

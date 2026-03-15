@@ -1,4 +1,4 @@
-from logic_utils import check_guess
+from logic_utils import check_guess, parse_guess
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -28,3 +28,21 @@ def test_hint_direction_correct():
     # E.g., secret=84, guess=32 should say "Go HIGHER!" (still outcome "Too Low").
     result = check_guess(32, 84)
     assert result == ("Too Low", "📈 Go HIGHER!")
+
+
+def test_parse_guess_rejects_negative():
+    # Negative guesses are invalid in this game.
+    ok, _, _ = parse_guess("-5")
+    assert ok is False
+
+
+def test_parse_guess_rejects_decimal():
+    # Decimals should not be accepted; only whole numbers are allowed.
+    ok, _, _ = parse_guess("3.14")
+    assert ok is False
+
+
+def test_parse_guess_rejects_huge_number():
+    # Extremely large numbers should not crash the game.
+    ok, _, _ = parse_guess("1" + "0" * 1000)
+    assert ok is False

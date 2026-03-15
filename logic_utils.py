@@ -1,3 +1,5 @@
+import random
+
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
     if difficulty == "Easy":
@@ -10,8 +12,7 @@ def get_range_for_difficulty(difficulty: str):
 
 
 def parse_guess(raw: str):
-    """
-    Parse user input into an int guess.
+    """Parse user input into an int guess.
 
     Returns: (ok: bool, guess_int: int | None, error_message: str | None)
     """
@@ -21,13 +22,22 @@ def parse_guess(raw: str):
     if raw == "":
         return False, None, "Enter a guess."
 
+    # Reject decimals (must be whole numbers)
+    if "." in raw:
+        return False, None, "Enter a whole number."
+
     try:
-        if "." in raw:
-            value = int(float(raw))
-        else:
-            value = int(raw)
+        # Very large integers can be unreasonably slow to parse; reject them.
+        # This also avoids overflow-like behaviors in some environments.
+        if len(raw) > 9:
+            return False, None, "Enter a reasonable number."
+
+        value = int(raw)
     except Exception:
         return False, None, "That is not a number."
+
+    if value < 0:
+        return False, None, "Enter a positive number."
 
     return True, value, None
 
@@ -53,6 +63,7 @@ def check_guess(guess, secret):
         return "Too Low", "📈 Go HIGHER!"
 
 
+# FIX: Added update_score in logic_utils.py (refactored from app.py) so all game rules live together.
 def update_score(current_score: int, outcome: str, attempt_number: int):
     """Update score based on outcome and attempt number."""
     if outcome == "Win":
@@ -70,3 +81,26 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score - 5
 
     return current_score
+
+
+def reset_game(low: int, high: int) -> dict:
+    """Return initial game state."""
+    return {
+        "secret": random.randint(low, high),
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+        "reset_counter": 0,
+    }
+
+
+# FIX: Added get_attempt_limit function refactored from app.py using Copilot Agent mode for better separation of logic and UI.
+def get_attempt_limit(difficulty: str) -> int:
+    """Return the attempt limit for a given difficulty."""
+    limits = {
+        "Easy": 6,
+        "Normal": 8,
+        "Hard": 5,
+    }
+    return limits.get(difficulty, 8)

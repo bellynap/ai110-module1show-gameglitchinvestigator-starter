@@ -1,6 +1,22 @@
 import random
 import streamlit as st
-from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
+# FIX: Refactored logic into logic_utils.py using Copilot Agent mode. Moved get_range_for_difficulty, parse_guess, check_guess, update_score, get_attempt_limit, reset_game to separate file for better separation of concerns.
+from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, get_attempt_limit, reset_game
+import os
+
+# Agent: Added high score persistence functions to save/load best score from file.
+def load_high_score():
+    """Load high score from file, default to 0 if not found."""
+    try:
+        with open("high_score.txt", "r") as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return 0
+
+def save_high_score(score):
+    """Save high score to file."""
+    with open("high_score.txt", "w") as f:
+        f.write(str(score))
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -15,12 +31,8 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
-attempt_limit_map = {
-    "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
-}
-attempt_limit = attempt_limit_map[difficulty]
+# FIX: Refactored attempt limit logic into get_attempt_limit function in logic_utils.py for cleaner code.
+attempt_limit = get_attempt_limit(difficulty)
 
 low, high = get_range_for_difficulty(difficulty)
 
@@ -32,8 +44,34 @@ if st.session_state.current_difficulty != difficulty:
     st.session_state.secret = random.randint(low, high)
     st.session_state.current_difficulty = difficulty
 
+# Agent: Added high score tracking to session state, loaded from file.
+if "high_score" not in st.session_state:
+    st.session_state.high_score = load_high_score()
+
+# Agent: Added guess history to track all guesses for visualization.
+if "guess_history" not in st.session_state:
+    st.session_state.guess_history = []
+
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+
+# Agent: Added high score display in sidebar.
+st.sidebar.subheader("🏆 High Score")
+st.sidebar.write(f"Best Score: {st.session_state.high_score}")
+
+# Agent: Added guess history visualization in sidebar.
+st.sidebar.subheader("📊 Guess History")
+if st.session_state.guess_history:
+    for i, entry in enumerate(st.session_state.guess_history, 1):
+        guess = entry["guess"]
+        distance = entry["distance"]
+        # Visualize closeness with a progress bar (closer = more filled).
+        max_distance = high - low  # Approximate max possible distance.
+        closeness = 1 - (distance / max_distance) if max_distance > 0 else 1
+        st.sidebar.write(f"Guess {i}: {guess} (Distance: {distance})")
+        st.sidebar.progress(min(closeness, 1.0))
+else:
+    st.sidebar.write("No guesses yet.")
 
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
@@ -55,10 +93,18 @@ if "history" not in st.session_state:
 if "reset_counter" not in st.session_state:
     st.session_state.reset_counter = 0
 
+# Agent: Added high score tracking to session state, loaded from file.
+if "high_score" not in st.session_state:
+    st.session_state.high_score = load_high_score()
+
+# Agent: Added guess history to track all guesses for visualization.
+if "guess_history" not in st.session_state:
+    st.session_state.guess_history = []
+
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -82,14 +128,12 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
- # Fix # 1: Ensure new game resets the input field and game state without needing st.rerun()
+# FIX: Refactored new game reset logic into reset_game function in logic_utils.py to encapsulate state initialization.
 if new_game:
-    # reset all of the session state that drives a game
-    st.session_state.attempts = 0          # will be bumped to 1 on first submit
-    st.session_state.score = 0
-    st.session_state.status = "playing"
-    st.session_state.history = []
-    st.session_state.secret = random.randint(low, high)  # respect difficulty
+    # Use reset_game to get initial state
+    initial_state = reset_game(low, high)
+    for key, value in initial_state.items():
+        st.session_state[key] = value
     # increment reset counter to clear the input widget
     st.session_state.reset_counter += 1
 
@@ -119,6 +163,9 @@ if submit:
             st.error(f"Guess must be between {low} and {high}.")
         else:
             st.session_state.history.append(guess_int)
+            # Agent: Record guess with distance from secret for history visualization.
+            distance = abs(guess_int - st.session_state.secret)
+            st.session_state.guess_history.append({"guess": guess_int, "distance": distance})
 
             # Fix #6: Always compare numerically so hints are correct.
             # Previously, secret could be passed as a string on even attempts, causing lexicographical comparisons.
@@ -142,6 +189,10 @@ if submit:
                     f"You won! The secret was {st.session_state.secret}. "
                     f"Final score: {st.session_state.score}"
                 )
+                # Agent: Update high score if current score is better.
+                if st.session_state.score > st.session_state.high_score:
+                    st.session_state.high_score = st.session_state.score
+                    save_high_score(st.session_state.score)
             else:
                 if st.session_state.attempts >= attempt_limit:
                     st.session_state.status = "lost"
@@ -150,6 +201,10 @@ if submit:
                         f"The secret was {st.session_state.secret}. "
                         f"Score: {st.session_state.score}"
                     )
+                    # Agent: Update high score even on loss if score is positive.
+                    if st.session_state.score > st.session_state.high_score:
+                        st.session_state.high_score = st.session_state.score
+                        save_high_score(st.session_state.score)
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")

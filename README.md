@@ -50,12 +50,12 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📸 Demo
 
-- [ ] ![alt text](image.png)
+![Demo screenshot](image.png)
 
 ## 🚀 Stretch Features
 
-- Challenge 1 Advanced Edge-Case Testing [alt text](image-1.png)
-- Challenge 2: Feature Expansion via Agent Mode (agent changes commented in code)
-- Challenge 3: Professional Documentation and Linting
-- Challenge 4: Enhanced Game UI
+- [x] Challenge 1: Advanced Edge-Case Testing ![screenshot](image-1.png)
+- [x] Challenge 2: Feature Expansion via Agent Mode (agent changes commented in code)
+- [x] Challenge 3: Professional Documentation and Linting added
+- [x] Challenge 4: Enhanced Game UI — added a metrics row and progress bar for attempts ![screenshot](image-2.png)
 

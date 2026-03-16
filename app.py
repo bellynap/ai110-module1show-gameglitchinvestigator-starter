@@ -4,6 +4,7 @@ import streamlit as st
 from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, get_attempt_limit, reset_game
 import os
 
+
 # Agent: Added high score persistence functions to save/load best score from file.
 def load_high_score():
     """Load high score from file, default to 0 if not found."""
@@ -13,10 +14,12 @@ def load_high_score():
     except (FileNotFoundError, ValueError):
         return 0
 
+
 def save_high_score(score):
     """Save high score to file."""
     with open("high_score.txt", "w") as f:
         f.write(str(score))
+
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 

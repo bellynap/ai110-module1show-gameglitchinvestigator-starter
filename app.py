@@ -103,10 +103,20 @@ if "guess_history" not in st.session_state:
 
 st.subheader("Make a guess")
 
-st.info(
-    f"Guess a number between {low} and {high}. "
-    f"Attempts left: {attempt_limit - st.session_state.attempts}"
-)
+# Challenge 4: Displays a structured stats dashboard using st.metric() cards,
+# showing the player's current score, attempts remaining, and all-time high score
+# in a clean three-column layout instead of a plain info string.
+m1, m2, m3 = st.columns(3)
+m1.metric("Score", st.session_state.score)
+m2.metric("Attempts Left", attempt_limit - st.session_state.attempts)
+m3.metric("High Score", st.session_state.high_score)
+
+st.caption(f"Guess a number between {low} and {high}.")
+
+# Challenge 4: Renders a visual progress bar that fills as attempts are used,
+# giving the player an at-a-glance sense of how close they are to running out of guesses.
+progress = st.session_state.attempts / attempt_limit
+st.progress(progress, text=f"Attempts used: {st.session_state.attempts}/{attempt_limit}")
 
 with st.expander("Developer Debug Info"):
     st.write("Secret:", st.session_state.secret)
